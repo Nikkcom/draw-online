@@ -135,7 +135,7 @@ function handleCellClick(row, col) {
         return;
     }
 
-    console.log(`[+] Drawing at (${row}, ${col})`);
+    console.log(`[+] User clicked at (${row}, ${col})`);
 
     window.ws.send(
         JSON.stringify({
