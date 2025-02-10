@@ -10,12 +10,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
 let selectedColor = "#206ba0";
 
+function getWebSocketServer() {
+    if (window.location.host === "nikkcom.github.io") {
+        return "wss://draw-online-6daf0e4b3b2d.herokuapp.com/";
+    } else if (window.location.host === "localhost:8000") {
+        return "ws://localhost:8001"
+    }
+}
+
 /*
     WebSocket Initialization
 */
 function initializeWebSocket() {
-    const ws = new WebSocket(`wss://draw-online-6daf0e4b3b2d.herokuapp.com/`);
-
+    const ws = new WebSocket(getWebSocketServer());
     ws.onopen = () => console.log("[+] WebSocket connection established.");
     ws.onerror = (error) => console.error("[-] WebSocket Error:", error);
     ws.onclose = () => console.log("[-] WebSocket closed.");
