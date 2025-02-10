@@ -1,0 +1,14 @@
+.idea/
+.venv/
+.env/
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+*.env
+.DS_Store
+logs/
+*.log
+*.swp
