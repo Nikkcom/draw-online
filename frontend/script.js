@@ -48,7 +48,6 @@ function initializeColorPicker() {
  */
 function handleWebSocketMessage(event) {
     const message = JSON.parse(event.data);
-    console.log("[+] WebSocket messages received: ", message);
 
     if (message.type === "ACTIVE_CONNECTIONS") {
         updateConnectionCount(message.count)
