@@ -14,7 +14,7 @@ let selectedColor = "#206ba0";
     WebSocket Initialization
 */
 function initializeWebSocket() {
-    const ws = new WebSocket(`ws://localhost:8001`);
+    const ws = new WebSocket(`wss://draw-online-6daf0e4b3b2d.herokuapp.com/`);
 
     ws.onopen = () => console.log("[+] WebSocket connection established.");
     ws.onerror = (error) => console.error("[-] WebSocket Error:", error);
