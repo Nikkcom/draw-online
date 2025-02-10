@@ -1,14 +1,15 @@
 import asyncio
 import json
-
 import websockets
+import os
+
 from websockets.exceptions import ConnectionClosed
 from websockets.asyncio.server import broadcast
 
 # A Set to store active connections
 connected_clients = set()
 
-# Stores the Grid state
+# Stores the Grid state .
 # key is tuple (row, col)
 # value is string with hex color.
 draw_events = {}
@@ -59,7 +60,7 @@ async def send_stored_draw_events(websocket):
             return
 
         # Calculates the delay between events. Distributes it over 2 seconds.
-        delay = 0.25 / max(1, total - 1)
+        delay = 0.2 / max(1, total - 1)
 
         for i , event in enumerate(draw_events.values()):
             await websocket.send(json.dumps(event))
@@ -78,7 +79,8 @@ async def broadcast_connection_count():
     broadcast(connected_clients, json.dumps(event))
 
 async def main():
-    async with websockets.serve(handler, "localhost", 8001):
+    PORT = int(os.getenv("PORT", 8001))
+    async with websockets.serve(handler, "0.0.0.0", PORT):
         await asyncio.Future()
 
 
