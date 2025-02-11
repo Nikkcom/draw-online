@@ -23,6 +23,7 @@ async def handler(websocket):
     connected_clients.add(websocket)
     print(f'[+] New connection. Total connections: {len(connected_clients)}')
 
+    # Broadcasts the new connection count to all connections.
     await broadcast_connection_count()
 
     # Sends all the stored draw events so the new client is synced with existing drawing.
@@ -39,34 +40,60 @@ async def handler(websocket):
                 draw_events[(row, col)] = event
                 broadcast(connected_clients, json.dumps(event))
 
+            # Handle browser disconnection
+            elif event['type'] == 'DISCONNECT':
+                print("[-] Client send DISCONNECT message")
+                break
     except ConnectionClosed:
         pass
     finally:
-        connected_clients.remove(websocket)
-        print(f'[-] Client disconnected. Total connections: {len(connected_clients)}')
+
+        if websocket in connected_clients:
+            connected_clients.remove(websocket)
+            print(f'[-] Client disconnected. Total connections: {len(connected_clients)}')
         await broadcast_connection_count()
 
 async def send_stored_draw_events(websocket):
     """
     Sends all the stored draw events to the new client.
     """
+    if not draw_events:
+        print('[=] No stored draw events found.')
+        return
 
-    if draw_events:
-        total = len(draw_events)
+    draw_event_list = list(draw_events.values())
+    total = len(draw_event_list)
 
-        # Sends the event if only one cell is drawn.
-        if total == 1:
-            await websocket.send(json.dumps(draw_events[0]))
-            return
+    # Sends the first event if only one cell exists.
+    if total == 1:
+        await websocket.send(json.dumps(draw_event_list[0]))
+        return
 
-        # Calculates the delay between events. Distributes it over 2 seconds.
-        delay = 0.2 / max(1, total - 1)
+    # Calculates the delay between events. Distributes it over 2 seconds.
+    delay = 1 / max(1, total - 1)
 
-        for i , event in enumerate(draw_events.values()):
-            await websocket.send(json.dumps(event))
-            if i < total - 1:
-                await asyncio.sleep(delay)
+    for i , event in enumerate(draw_events.values()):
+        await websocket.send(json.dumps(event))
+        if i < total - 1:
+            await asyncio.sleep(delay)
 
+async def cleanup_disconnected_clients():
+    """
+    Periodically removes disconnected clients every 30 seconds.
+    """
+    while True:
+        await asyncio.sleep(30)
+        disconnected_clients = set()
+
+        for ws in connected_clients:
+            if ws.closed:
+                disconnected_clients.add(ws)
+
+        for ws in disconnected_clients:
+            connected_clients.discard(ws)
+            print(f"[-] Removed a connection. Active connections: {len(connected_clients)}")
+
+        await broadcast_connection_count()
 
 async def broadcast_connection_count():
     """
@@ -76,11 +103,13 @@ async def broadcast_connection_count():
         'type': 'ACTIVE_CONNECTIONS',
         'count': len(connected_clients),
     }
-    broadcast(connected_clients, json.dumps(event))
+    await broadcast(connected_clients, json.dumps(event))
 
 async def main():
     PORT = int(os.getenv("PORT", 8001))
+    print(f"[+] Starting WebSocket server on port {PORT}")
     async with websockets.serve(handler, "0.0.0.0", PORT):
+        asyncio.create_task(cleanup_disconnected_clients())
         await asyncio.Future()
 
 
