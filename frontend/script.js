@@ -9,13 +9,15 @@ document.addEventListener('DOMContentLoaded', () => {
 })
 
 let selectedColor = "#206ba0";
+let ws = null;
 
 function getWebSocketServer() {
-    if ( window.location.host === "nikolausbrock.no") {
-        console.error("[+] Deployed. Returned remote WebSocket Server.");
+    const host = window.location.host;
+    if ( host === "nikolausbrock.no") {
+        console.log("[+] Deployed. Returned remote WebSocket Server.");
         return "wss://draw-online-6daf0e4b3b2d.herokuapp.com/";
-    } else if (window.location.host === "localhost:8000") {
-        console.error("[+] Localhost. Returned Localhost WebSocket Server.");
+    } else if (host === "localhost:8000") {
+        console.log("[+] Localhost. Returned staging WebSocket Server.");
         return "wss://draw-online-staging-c590d68a9029.herokuapp.com"
     } else {
         console.error("[-] Unknown host. Could not connect to WebSocket Server.");
@@ -28,19 +30,49 @@ function getWebSocketServer() {
 */
 function initializeWebSocket() {
 
+    // Prevents duplicate WebSocket connections
+    if (ws && ws.readyState === WebSocket.OPEN) {
+        console.log("[=] WebSocket already connected.");
+        return;
+    }
+
+
     wsServer = getWebSocketServer();
     if (!wsServer) {
         console.error(`[-] ERROR: WebSocket Server URL is undefined.`);
     }
 
+    console.log(`[+] Connecting to WebSocket: ${wsServer}`)
 
-    const ws = new WebSocket(wsServer);
-    ws.onopen = () => console.log("[+] WebSocket connection established.");
+    ws = new WebSocket(wsServer);
+
+    ws.onopen = () => {
+        console.log("[+] WebSocket connection established.");
+
+        // Send a PING every 20 seconds to keep the WebSocket connection alive
+        setInterval(() => {
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({type: "PING"}));
+                console.log("[=] Sent WebSocket PING.");
+            }
+        }, 20000);
+    };
+
     ws.onerror = (error) => console.error("[-] WebSocket Error:", error);
-    ws.onclose = () => console.log("[-] WebSocket closed.");
+    ws.onclose = () => {
+        console.log("[-] WebSocket closed.");
+        ws = null;
+    }
     ws.onmessage = handleWebSocketMessage;
 
-    window.ws = ws;
+
+    // Sends a disconnect message when page is closed.
+    window.addEventListener("beforeunload", () => {
+        if (ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({type: "DISCONNECT"}));
+        }
+        ws.close();
+    });
 }
 
 /*
