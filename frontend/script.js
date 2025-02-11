@@ -11,10 +11,15 @@ document.addEventListener('DOMContentLoaded', () => {
 let selectedColor = "#206ba0";
 
 function getWebSocketServer() {
-    if (window.location.host === "nikkcom.github.io" || window.location.host === "nikolausbrock.no") {
+    if ( window.location.host === "nikolausbrock.no") {
+        console.error("[+] Deployed. Returned remote WebSocket Server.");
         return "wss://draw-online-6daf0e4b3b2d.herokuapp.com/";
     } else if (window.location.host === "localhost:8000") {
+        console.error("[+] Localhost. Returned Localhost WebSocket Server.");
         return "ws://localhost:8001"
+    } else {
+        console.error("[-] Unknown host. Could not connect to WebSocket Server.");
+        return null;
     }
 }
 
@@ -22,7 +27,14 @@ function getWebSocketServer() {
     WebSocket Initialization
 */
 function initializeWebSocket() {
-    const ws = new WebSocket(getWebSocketServer());
+
+    wsServer = getWebSocketServer();
+    if (!wsServer) {
+        console.error(`[-] ERROR: WebSocket Server URL is undefined.`);
+    }
+
+
+    const ws = new WebSocket(wsServer);
     ws.onopen = () => console.log("[+] WebSocket connection established.");
     ws.onerror = (error) => console.error("[-] WebSocket Error:", error);
     ws.onclose = () => console.log("[-] WebSocket closed.");
