@@ -16,7 +16,7 @@ function getWebSocketServer() {
         return "wss://draw-online-6daf0e4b3b2d.herokuapp.com/";
     } else if (window.location.host === "localhost:8000") {
         console.error("[+] Localhost. Returned Localhost WebSocket Server.");
-        return "ws://localhost:8001"
+        return "wss://draw-online-staging-c590d68a9029.herokuapp.com"
     } else {
         console.error("[-] Unknown host. Could not connect to WebSocket Server.");
         return null;
