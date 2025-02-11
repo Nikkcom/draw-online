@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
 let selectedColor = "#206ba0";
 
 function getWebSocketServer() {
-    if (window.location.host === "nikkcom.github.io") {
+    if (window.location.host === "nikkcom.github.io" || window.location.host === "nikolausbrock.no") {
         return "wss://draw-online-6daf0e4b3b2d.herokuapp.com/";
     } else if (window.location.host === "localhost:8000") {
         return "ws://localhost:8001"
