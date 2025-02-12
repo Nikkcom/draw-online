@@ -111,16 +111,16 @@ function handleWebSocketMessage(event) {
 /*
     Updates the Connection Count in the UI
  */
-// function updateConnectionCount(count) {
-//     const connectionCount = document.getElementById("connection-count");
-//
-//     if (!connectionCount) {
-//         console.log("[-] ERROR: #connection-count not found in the HTML!");
-//         return;
-//     }
-//
-//     connectionCount.textContent = count;
-// }
+function updateConnectionCount(count) {
+    const connectionCount = document.getElementById("connection-count");
+
+    if (!connectionCount) {
+        console.warn("[-] ERROR: #connection-count not found in the HTML!");
+        return;
+    }
+
+    connectionCount.textContent = count;
+}
 
 /*
     Initializes the drawable Grid
