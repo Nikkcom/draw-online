@@ -7,7 +7,7 @@ A real-time drawing web application built with a **Python** and **JavaScript**. 
 
 
 ## Features
-- Everyone connected to the web app can draw together.
+- Everyone connected can draw together.
 - Real-time drawing using WebSockets.
 - Color selector to choose different colors.
 - Interactive grid for smooth drawing.
