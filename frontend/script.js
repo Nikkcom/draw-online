@@ -185,7 +185,7 @@ function createGrid(gridElement) {
     Handle Cell Click Event
  */
 function handleCellClick(row, col) {
-    if (!window.ws || window.ws.readyState !== WebSocket.OPEN) {
+    if (ws || ws.readyState !== WebSocket.OPEN) {
         console.warn("[-] WARN: WebSocket not open. Click has been ignored.");
         return;
     }
