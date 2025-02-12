@@ -1,1 +1,1 @@
-web: python backend/app.py
+web: daphne -b 0.0.0.0 -p $PORT backend.app:main

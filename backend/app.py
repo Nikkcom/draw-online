@@ -3,6 +3,7 @@ import json
 import websockets
 import os
 
+from dotenv import load_dotenv
 from websockets.exceptions import ConnectionClosed
 from websockets.asyncio.server import broadcast
 
@@ -24,7 +25,7 @@ async def handler(websocket):
     print(f'[+] New connection. Total connections: {len(connected_clients)}')
 
     # Broadcasts the new connection count to all connections.
-    await broadcast_connection_count()
+    #await broadcast_connection_count()
 
     # Sends all the stored draw events so the new client is synced with existing drawing.
     await send_stored_draw_events(websocket)
@@ -106,9 +107,15 @@ async def broadcast_connection_count():
     await broadcast(connected_clients, json.dumps(event))
 
 async def main():
+
+    # Load .env file.
+    load_dotenv()
+
     PORT = int(os.getenv("PORT", 8001))
+    DEBUG = os.getenv("DEBUG", "true").lower() == "true"
+    WS_URL = os.getenv("WS_URL", "ws://localhost:8001")
     print(f"[+] Starting WebSocket server on port {PORT}")
-    async with websockets.serve(handler, "0.0.0.0", PORT):
+    async with websockets.serve(handler, "0.0.0.0", PORT, path="/ws"):
         asyncio.create_task(cleanup_disconnected_clients())
         await asyncio.Future()
 

@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeColorPicker();
 })
 
+// Sets the default color.
 let selectedColor = "#206ba0";
 let ws = null;
 
@@ -15,10 +16,10 @@ function getWebSocketServer() {
     const host = window.location.host;
     if ( host === "nikolausbrock.no") {
         console.log("[+] Deployed. Returned remote WebSocket Server.");
-        return "wss://draw-online-6daf0e4b3b2d.herokuapp.com/";
+        return "wss://draw-online-6daf0e4b3b2d.herokuapp.com/ws";
     } else if (host === "localhost:8000") {
         console.log("[+] Localhost. Returned staging WebSocket Server.");
-        return "wss://draw-online-staging-c590d68a9029.herokuapp.com"
+        return "wss://draw-online-staging-c590d68a9029.herokuapp.com/ws"
     } else {
         console.error("[-] Unknown host. Could not connect to WebSocket Server.");
         return null;
@@ -101,7 +102,7 @@ function handleWebSocketMessage(event) {
     const message = JSON.parse(event.data);
 
     if (message.type === "ACTIVE_CONNECTIONS") {
-        updateConnectionCount(message.count)
+        // updateConnectionCount(message.count);
     } else if (message.type === "DRAW") {
         updateGridCell(message.row, message.col, message.color);
     }
@@ -110,16 +111,16 @@ function handleWebSocketMessage(event) {
 /*
     Updates the Connection Count in the UI
  */
-function updateConnectionCount(count) {
-    const connectionCount = document.getElementById("connection-count");
-
-    if (!connectionCount) {
-        console.log("[-] ERROR: #connection-count not found in the HTML!");
-        return;
-    }
-
-    connectionCount.textContent = count;
-}
+// function updateConnectionCount(count) {
+//     const connectionCount = document.getElementById("connection-count");
+//
+//     if (!connectionCount) {
+//         console.log("[-] ERROR: #connection-count not found in the HTML!");
+//         return;
+//     }
+//
+//     connectionCount.textContent = count;
+// }
 
 /*
     Initializes the drawable Grid
