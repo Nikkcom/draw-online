@@ -63,7 +63,7 @@ function updateConnectionCount(count) {
     const connectionCount = document.getElementById("connection-count");
 
     if (!connectionCount) {
-        console.log("[-] ERROR: #connection-count not found in the HTML!");
+        console.warn("[-] ERROR: #connection-count not found in the HTML!");
         return;
     }
 
