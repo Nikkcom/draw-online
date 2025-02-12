@@ -16,10 +16,10 @@ function getWebSocketServer() {
     const host = window.location.host;
     if ( host === "nikolausbrock.no") {
         console.log("[+] Deployed. Returned remote WebSocket Server.");
-        return "wss://draw-online-6daf0e4b3b2d.herokuapp.com/ws";
+        return "wss://draw-online-6daf0e4b3b2d.herokuapp.com";
     } else if (host === "localhost:8000") {
         console.log("[+] Localhost. Returned staging WebSocket Server.");
-        return "wss://draw-online-staging-c590d68a9029.herokuapp.com/ws"
+        return "wss://draw-online-staging-c590d68a9029.herokuapp.com"
     } else {
         console.error("[-] Unknown host. Could not connect to WebSocket Server.");
         return null;

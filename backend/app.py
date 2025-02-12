@@ -104,7 +104,7 @@ async def broadcast_connection_count():
         'type': 'ACTIVE_CONNECTIONS',
         'count': len(connected_clients),
     }
-    await broadcast(connected_clients, json.dumps(event))
+    broadcast(connected_clients, json.dumps(event))
 
 async def main():
 
@@ -112,10 +112,8 @@ async def main():
     load_dotenv()
 
     PORT = int(os.getenv("PORT", 8001))
-    DEBUG = os.getenv("DEBUG", "true").lower() == "true"
-    WS_URL = os.getenv("WS_URL", "ws://localhost:8001")
     print(f"[+] Starting WebSocket server on port {PORT}")
-    async with websockets.serve(handler, "0.0.0.0", PORT, path="/ws"):
+    async with websockets.serve(handler, "0.0.0.0", PORT):
         asyncio.create_task(cleanup_disconnected_clients())
         await asyncio.Future()
 
