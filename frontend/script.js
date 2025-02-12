@@ -56,7 +56,7 @@ function initializeWebSocket() {
                 ws.send(JSON.stringify({type: "PING"}));
                 console.log("[=] Sent WebSocket PING.");
             }
-        }, 20000);
+        }, 30000);
     };
 
     ws.onerror = (error) => console.error("[-] WebSocket Error:", error);
@@ -105,7 +105,10 @@ function handleWebSocketMessage(event) {
         // updateConnectionCount(message.count);
     } else if (message.type === "DRAW") {
         updateGridCell(message.row, message.col, message.color);
+    } else if (message.type === "PONG") {
+        console.log("[+] Receiver PONG from server.");
     }
+
 }
 
 /*
