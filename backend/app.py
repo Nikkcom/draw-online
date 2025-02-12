@@ -87,7 +87,7 @@ async def cleanup_disconnected_clients():
         disconnected_clients = set()
 
         for ws in connected_clients:
-            if ws.closed:
+            if ws.close:
                 disconnected_clients.add(ws)
 
         for ws in disconnected_clients:
