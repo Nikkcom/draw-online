@@ -78,24 +78,6 @@ async def send_stored_draw_events(websocket):
         if i < total - 1:
             await asyncio.sleep(delay)
 
-async def cleanup_disconnected_clients():
-    """
-    Periodically removes disconnected clients every 30 seconds.
-    """
-    while True:
-        await asyncio.sleep(30)
-        disconnected_clients = set()
-
-        for ws in connected_clients:
-            if ws.close:
-                disconnected_clients.add(ws)
-
-        for ws in disconnected_clients:
-            connected_clients.discard(ws)
-            print(f"[-] Removed a connection. Active connections: {len(connected_clients)}")
-
-        await broadcast_connection_count()
-
 async def broadcast_connection_count():
     """
     Broadcasts the connection count to all connected clients.
@@ -114,7 +96,6 @@ async def main():
     PORT = int(os.getenv("PORT", 8001))
     print(f"[+] Starting WebSocket server on port {PORT}")
     async with websockets.serve(handler, "0.0.0.0", PORT):
-        asyncio.create_task(cleanup_disconnected_clients())
         await asyncio.Future()
 
 
