@@ -45,6 +45,10 @@ async def handler(websocket):
             elif event['type'] == 'DISCONNECT':
                 print("[-] Client send DISCONNECT message")
                 break
+
+            elif event['type'] == 'PING':
+                print("[+] Client send PING message")
+                websocket.send(json.dumps({'type': 'PONG'}))
     except ConnectionClosed:
         pass
     finally:
