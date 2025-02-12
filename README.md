@@ -5,7 +5,6 @@ A real-time drawing web application built with a **Python** and **JavaScript**. 
 ## Live Demo
 [nikolausbrock.no](nikolausbrock.no)
 
----
 
 ## Features
 - Real-time drawing using WebSockets.
