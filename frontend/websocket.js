@@ -16,7 +16,7 @@ function getWebSocketServer() {
     } else if (host.startsWith("localhost")) {
         return "wss://draw-online-staging-c590d68a9029.herokuapp.com";
     } else {
-        console.error("[-] Unknown host. Could not connect to WebSocket Server.");
+        console.error("Unknown host. Could not connect to WebSocket Server.");
         return null;
     }
 }
