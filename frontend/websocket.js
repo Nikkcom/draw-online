@@ -39,13 +39,6 @@ export function getWebSocketInstance() {
         keepConnectionAlive(PING_INTERVAL);
     };
 
-    ws.onmessage = (event) => {
-        const message = JSON.parse(event.data);
-        if (message.type === "PONG") {
-            console.log("Received PONG from server.");
-        }
-    };
-
     ws.onerror = (error) => {console.error(error)}
 
     ws.onclose = () => {
