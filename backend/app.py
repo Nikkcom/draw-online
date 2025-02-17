@@ -47,8 +47,8 @@ async def handler(websocket):
                 break
 
             elif event['type'] == 'PING':
-                print("Client send PING message")
-                websocket.send(json.dumps({'type': 'PONG'}))
+                print("Client sent PING message")
+                await websocket.send(json.dumps({'type': 'PONG'}))
     except ConnectionClosed:
         pass
     finally:
