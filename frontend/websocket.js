@@ -14,7 +14,7 @@ function getWebSocketServer() {
     if (host === "nikolausbrock.no") {
         return "wss://draw-online-6daf0e4b3b2d.herokuapp.com";
     } else if (host.startsWith("localhost")) {
-        return "wss://draw-online-staging-c590d68a9029.herokuapp.com";
+        return "ws://localhost:8002";
     } else {
         console.error("Unknown host. Could not connect to WebSocket Server.");
         return null;
