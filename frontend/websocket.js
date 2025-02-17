@@ -16,7 +16,7 @@ function getWebSocketServer() {
     } else if (host.startsWith("localhost")) {
         return "wss://draw-online-staging-c590d68a9029.herokuapp.com";
     } else {
-        console.error("[-] Unknown host. Could not connect to WebSocket Server.");
+        console.error("Unknown host. Could not connect to WebSocket Server.");
         return null;
     }
 }
@@ -69,7 +69,7 @@ function keepConnectionAlive(interval) {
             return;
         }
         ws.send(JSON.stringify({type: "PING"}));
-        console.log("Sent a PING to the WebSocket server");
+        console.log("Sent a PING to the server.");
     }, 1000 * interval);
 }
 
