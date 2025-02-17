@@ -1,80 +1,20 @@
-// Called when the page is loaded.
+import {getWebSocketInstance} from "./websocket.js";
+
+// Global Variables
+let selectedColor = "#206ba0";
+
+// Initialization when the page loads.
 document.addEventListener('DOMContentLoaded', () => {
 
-    console.log('[+] DOMContentLoaded');
-
-    initializeWebSocket();
-    initializeGrid();
-    initializeColorPicker();
-})
-
-// Sets the default color.
-let selectedColor = "#206ba0";
-let ws = null;
-
-function getWebSocketServer() {
-    const host = window.location.host;
-    if ( host === "nikolausbrock.no") {
-        console.log("[+] Deployed. Returned remote WebSocket Server.");
-        return "wss://draw-online-6daf0e4b3b2d.herokuapp.com";
-    } else if (host === "localhost:8000") {
-        console.log("[+] Localhost. Returned staging WebSocket Server.");
-        return "wss://draw-online-staging-c590d68a9029.herokuapp.com"
-    } else {
-        console.error("[-] Unknown host. Could not connect to WebSocket Server.");
-        return null;
-    }
-}
-
-/*
-    WebSocket Initialization
-*/
-function initializeWebSocket() {
-
-    // Prevents duplicate WebSocket connections
-    if (ws && ws.readyState === WebSocket.OPEN) {
-        console.log("[=] WebSocket already connected.");
-        return;
-    }
-
-
-    wsServer = getWebSocketServer();
-    if (!wsServer) {
-        console.error(`[-] ERROR: WebSocket Server URL is undefined.`);
-    }
-
-    console.log(`[+] Connecting to WebSocket: ${wsServer}`)
-
-    ws = new WebSocket(wsServer);
-
-    ws.onopen = () => {
-        console.log("[+] WebSocket connection established.");
-
-        // Send a PING every 20 seconds to keep the WebSocket connection alive
-        setInterval(() => {
-            if (ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({type: "PING"}));
-                console.log("[=] Sent WebSocket PING.");
-            }
-        }, 20000);
-    };
-
-    ws.onerror = (error) => console.error("[-] WebSocket Error:", error);
-    ws.onclose = () => {
-        console.log("[-] WebSocket closed.");
-        ws = null;
-    }
+    const ws = getWebSocketInstance();
     ws.onmessage = handleWebSocketMessage;
 
+    initializeGrid();
+    initializeColorPicker();
 
-    // Sends a disconnect message when page is closed.
-    window.addEventListener("beforeunload", () => {
-        if (ws.readyState === WebSocket.OPEN) {
-            ws.send(JSON.stringify({type: "DISCONNECT"}));
-        }
-        ws.close();
-    });
-}
+    console.log('DOMContentLoaded');
+});
+
 
 /*
     Color Picker Initialization
@@ -83,7 +23,7 @@ function initializeColorPicker() {
     const colorPicker = document.getElementById('color-picker');
 
     if (!colorPicker) {
-        console.error("[-] ERROR: Color picker not found in the HTML!");
+        console.error("ERROR: Color picker not found in the HTML!");
         return;
     }
 
@@ -91,7 +31,7 @@ function initializeColorPicker() {
 
     colorPicker.addEventListener('change', (event) => {
         selectedColor = event.target.value;
-        console.log(`[+] Selected color changed to: ${selectedColor}`);
+        console.log(`Selected color changed to: ${selectedColor}`);
     });
 }
 
@@ -99,27 +39,23 @@ function initializeColorPicker() {
     Handles WebSocket Messages
  */
 function handleWebSocketMessage(event) {
-    const message = JSON.parse(event.data);
 
-    if (message.type === "ACTIVE_CONNECTIONS") {
-        // updateConnectionCount(message.count);
-    } else if (message.type === "DRAW") {
-        updateGridCell(message.row, message.col, message.color);
+    try {
+        const message = JSON.parse(event.data);
+
+        switch (message.type) {
+            case "DRAW":
+                updateGridCell(message.row, message.col, message.color);
+                break;
+            case "PONG":
+                console.log("Received PONG from server.");
+                break;
+            default:
+                console.warn(`Unknown WebSocket message type: ${message.type}`);
+        }
+    } catch (error) {
+        console.error("Error parsing WebSocket message: ", error);
     }
-}
-
-/*
-    Updates the Connection Count in the UI
- */
-function updateConnectionCount(count) {
-    const connectionCount = document.getElementById("connection-count");
-
-    if (!connectionCount) {
-        console.warn("[-] ERROR: #connection-count not found in the HTML!");
-        return;
-    }
-
-    connectionCount.textContent = count;
 }
 
 /*
@@ -130,11 +66,11 @@ function initializeGrid() {
     const gridContainer = document.querySelector('.grid-container');
 
     if (!gridContainer) {
-        console.error("[-] GridContainer not found in the HTML!");
+        console.error("GridContainer not found in the HTML!");
         return;
     }
 
-    console.log("[+] Grid container found. Creating Grid...");
+    console.log("Grid container found. Creating Grid...");
 
     // Create the Grid wrapper
     const grid = document.createElement('div');
@@ -175,21 +111,23 @@ function createGrid(gridElement) {
         }
         gridElement.appendChild(rowDiv);
     }
-    console.log("[+] Grid created successfully.");
+    console.log("Grid created successfully.");
 }
 
 /*
     Handle Cell Click Event
  */
 function handleCellClick(row, col) {
-    if (!window.ws || window.ws.readyState !== WebSocket.OPEN) {
-        console.warn("[-] WARN: WebSocket not open. Click has been ignored.");
+    const ws = getWebSocketInstance();
+
+    if (!ws || ws.readyState !== WebSocket.OPEN) {
+        console.warn("WebSocket connection not open. Click has been ignored.");
         return;
     }
 
-    console.log(`[+] User clicked at (${row}, ${col})`);
+    console.log(`User clicked at (${row}, ${col})`);
 
-    window.ws.send(
+    ws.send(
         JSON.stringify({
             type: "DRAW",
             row: row,
@@ -204,9 +142,9 @@ function updateGridCell(row, col, color) {
 
     if (cell) {
         cell.style.backgroundColor = color;
-        console.log(`[+] Cell updated. Set (${row}, ${col}) to ${color}`);
+        console.log(`Cell updated. Set (${row}, ${col}) to ${color}`);
     } else {
-        console.warn(`[-] WARN: Cell (${row}, ${col}) not found!`)
+        console.warn("WARN: Cell (${row}, ${col}) not found!")
     }
 
 }

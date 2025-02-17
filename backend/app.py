@@ -22,7 +22,7 @@ async def handler(websocket):
     """
 
     connected_clients.add(websocket)
-    print(f'[+] New connection. Total connections: {len(connected_clients)}')
+    print(f'New connection. Total connections: {len(connected_clients)}')
 
     # Broadcasts the new connection count to all connections.
     #await broadcast_connection_count()
@@ -35,7 +35,7 @@ async def handler(websocket):
             event = json.loads(message)
 
             if event['type'] == 'DRAW':
-                print(f'[+] Draw event received: {event}')
+                print(f'Draw event received: {event}')
                 row = event['row']
                 col = event['col']
                 draw_events[(row, col)] = event
@@ -43,15 +43,19 @@ async def handler(websocket):
 
             # Handle browser disconnection
             elif event['type'] == 'DISCONNECT':
-                print("[-] Client send DISCONNECT message")
+                print("Client send DISCONNECT message")
                 break
+
+            elif event['type'] == 'PING':
+                print("Client sent PING message")
+                await websocket.send(json.dumps({'type': 'PONG'}))
     except ConnectionClosed:
         pass
     finally:
 
         if websocket in connected_clients:
             connected_clients.remove(websocket)
-            print(f'[-] Client disconnected. Total connections: {len(connected_clients)}')
+            print(f'Client disconnected. Total connections: {len(connected_clients)}')
         await broadcast_connection_count()
 
 async def send_stored_draw_events(websocket):
@@ -59,7 +63,7 @@ async def send_stored_draw_events(websocket):
     Sends all the stored draw events to the new client.
     """
     if not draw_events:
-        print('[=] No stored draw events found.')
+        print('No stored draw events found.')
         return
 
     draw_event_list = list(draw_events.values())
@@ -78,24 +82,6 @@ async def send_stored_draw_events(websocket):
         if i < total - 1:
             await asyncio.sleep(delay)
 
-async def cleanup_disconnected_clients():
-    """
-    Periodically removes disconnected clients every 30 seconds.
-    """
-    while True:
-        await asyncio.sleep(30)
-        disconnected_clients = set()
-
-        for ws in connected_clients:
-            if ws.close:
-                disconnected_clients.add(ws)
-
-        for ws in disconnected_clients:
-            connected_clients.discard(ws)
-            print(f"[-] Removed a connection. Active connections: {len(connected_clients)}")
-
-        await broadcast_connection_count()
-
 async def broadcast_connection_count():
     """
     Broadcasts the connection count to all connected clients.
@@ -112,12 +98,11 @@ async def main():
     load_dotenv()
 
     PORT = int(os.getenv("PORT", 8001))
-    print(f"[+] Starting WebSocket server on port {PORT}")
+    print(f"Starting WebSocket server on port {PORT}")
     async with websockets.serve(handler, "0.0.0.0", PORT):
-        asyncio.create_task(cleanup_disconnected_clients())
         await asyncio.Future()
 
 
 if __name__ == "__main__":
-    print(f"[=] Starting websocket server...")
+    print(f"Starting websocket server...")
     asyncio.run(main())
