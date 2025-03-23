@@ -3,7 +3,7 @@ let pingInterval = null;
 let isClosing = false;
 
 // PING interval in seconds.
-const PING_INTERVAL = 30;
+const PING_INTERVAL = 15;
 
 // The delay in seconds after a connection is lost
 // before it tries to reconnect.
