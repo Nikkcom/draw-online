@@ -2,9 +2,9 @@ name: Build and Test Docker Container
 
 on:
   push:
-    branches: [ containerization ]
+    branches: [ main ]
   pull_request:
-    branches: [ containerization ]
+    branches: [ main ]
 
 jobs:
   build:
