@@ -115,7 +115,7 @@ async def process_request(path, request_headers):
     if path == "/health":
         return http.HTTPStatus.OK, [("Content-Type", "text/plain")], b"OK\n"
 
-    upgrade = request_headers.get('Upgrade', None)
+    upgrade = request_headers["Upgrade"] if "Upgrade" in request_headers else None
     if upgrade is None or upgrade.lower() != "websocket":
         logging.warning(f'Received non-WebSocket request to: {path}. Returning 400.')
         return http.HTTPStatus.BAD_REQUEST, [], b"This server only handles WebSocket connections\n"
