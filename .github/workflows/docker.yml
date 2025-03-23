@@ -1,0 +1,21 @@
+name: Build and Test Docker Container
+
+on:
+  push:
+    branches: [ containerization ]
+  pull_request:
+    branches: [ containerization ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Build Docker image
+        run: docker build -t draw-online-websocket-server ./backend
+
+      - name: Test container runs
+        run: docker run -d -p 8000:8000 websocket-server && sleep 5
