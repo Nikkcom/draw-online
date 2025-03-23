@@ -11,8 +11,8 @@ const RECONNECTION_DELAY = 3;
 
 function getWebSocketServer() {
     const host = window.location.host;
-    if (host === "nikolausbrock.no") {
-        return "ws://draw.nikolausbrock.no/ws/"
+    if (host === "draw.nikolausbrock.no") {
+        return "wss://draw.nikolausbrock.no/ws/"
     } else if (host.startsWith("localhost")) {
         return "ws://192.168.247.133:8001";
     } else {
