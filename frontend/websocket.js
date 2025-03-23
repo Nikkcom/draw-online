@@ -12,9 +12,9 @@ const RECONNECTION_DELAY = 3;
 function getWebSocketServer() {
     const host = window.location.host;
     if (host === "nikolausbrock.no") {
-        return "wss://draw-online-6daf0e4b3b2d.herokuapp.com";
+        return "ws://draw.nikolausbrock.no/ws/"
     } else if (host.startsWith("localhost")) {
-        return "ws://localhost:8002";
+        return "ws://192.168.247.133:8001";
     } else {
         console.error("Unknown host. Could not connect to WebSocket Server.");
         return null;
@@ -35,7 +35,7 @@ export function getWebSocketInstance() {
     ws = new WebSocket(wsServer);
 
     ws.onopen = () => {
-        console.log("WebSocket connection established.");
+        console.log("WebSocket connection established. " + ws.url);
         keepConnectionAlive(PING_INTERVAL);
     };
 
