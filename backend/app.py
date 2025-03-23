@@ -2,6 +2,7 @@ import asyncio
 import json
 import signal
 import http
+import time
 
 import websockets
 import os
@@ -19,6 +20,8 @@ connected_clients = set()
 # value is string with hex color.
 draw_events = {}
 
+# Key is websocket. Value is last activity timestamp
+client_last_seen = {}
 
 # Set logging level and format
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -30,16 +33,19 @@ async def handler(websocket):
     """
 
     connected_clients.add(websocket)
+    client_last_seen[websocket] = time.time()
     logging.info(f'New connection. Total connections: {len(connected_clients)}')
 
     # Broadcasts the new connection count to all connections.
-    #await broadcast_connection_count()
+    await broadcast_connection_count()
 
     # Sends all the stored draw events so the new client is synced with existing drawing.
     await send_stored_draw_events(websocket)
 
     try:
         async for message in websocket:
+
+            client_last_seen[websocket] = time.time()
 
             # Validates received message as JSON
             try:
@@ -64,12 +70,13 @@ async def handler(websocket):
             elif event['type'] == 'PING':
                 logging.info(f'Client sent a PING event: {event}')
                 await websocket.send(json.dumps({'type': 'PONG'}))
-    except ConnectionClosed:
-        pass
+    except ConnectionClosed as e:
+        logging.info(f'Connection closed: {e}')
     finally:
 
         if websocket in connected_clients:
             connected_clients.remove(websocket)
+            client_last_seen.pop(websocket, None)
             logging.info(f'Client disconnected. Total connections: {len(connected_clients)}')
         await broadcast_connection_count()
 
@@ -91,11 +98,29 @@ async def send_stored_draw_events(websocket):
 
     # Calculates the delay between events. Distributes it over 2 seconds.
     delay = 2 / max(1, total - 1)
+    try:
+        for i , event in enumerate(draw_events.values()):
+            await websocket.send(json.dumps(event))
+            if i < total - 1:
+                await asyncio.sleep(delay)
+    except websockets.exceptions.ConnectionClosed:
+        logging.warning(f'Client disconnected while receiving draw events.')
 
-    for i , event in enumerate(draw_events.values()):
-        await websocket.send(json.dumps(event))
-        if i < total - 1:
-            await asyncio.sleep(delay)
+async def drop_idle_clients(timeout_seconds=20):
+    while True:
+        now = time.time()
+        stale_clients = [
+            ws for ws, last_seen in client_last_seen.items()
+            if now - last_seen > timeout_seconds
+        ]
+        for ws in stale_clients:
+            logging.info(f'Force-closing idle client after {timeout_seconds}s: {ws.remote_address}')
+            await ws.close()
+            connected_clients.discard(ws)
+            client_last_seen.pop(ws, None)
+        await broadcast_connection_count()
+        await asyncio.sleep(5)
+
 
 async def broadcast_connection_count():
     """
@@ -103,7 +128,7 @@ async def broadcast_connection_count():
     """
     event = {
         'type': 'ACTIVE_CONNECTIONS',
-        'count': len(connected_clients),
+        'amount': len(connected_clients),
     }
     broadcast(connected_clients, json.dumps(event))
 
@@ -151,6 +176,8 @@ async def main():
             PORT,
             process_request=process_request
     ):
+
+        asyncio.create_task(drop_idle_clients(timeout_seconds=17))
         logging.info('WebSocket server is running. Waiting for shutdown signal...')
         await shutdown_event.wait()
         logging.info('Initiating graceful shutdown...')
