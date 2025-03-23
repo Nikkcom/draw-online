@@ -98,11 +98,13 @@ async def send_stored_draw_events(websocket):
 
     # Calculates the delay between events. Distributes it over 2 seconds.
     delay = 2 / max(1, total - 1)
-
-    for i , event in enumerate(draw_events.values()):
-        await websocket.send(json.dumps(event))
-        if i < total - 1:
-            await asyncio.sleep(delay)
+    try:
+        for i , event in enumerate(draw_events.values()):
+            await websocket.send(json.dumps(event))
+            if i < total - 1:
+                await asyncio.sleep(delay)
+    except websockets.exceptions.ConnectionClosed:
+        logging.warning(f'Client disconnected while receiving draw events.')
 
 async def drop_idle_clients(timeout_seconds=20):
     while True:
