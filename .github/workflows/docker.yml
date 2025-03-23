@@ -14,8 +14,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Build Docker image
-        run: docker build -t draw-online-websocket-server ./backend
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      - name: Test container runs
-        run: docker run -d -p 8000:8000 draw-online-websocket-server && sleep 5
+      - name: Build Docker image
+        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/draw-online:containerization ./backend
+
+      - name: Push image to Docker Hub
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/draw-online:containerization
