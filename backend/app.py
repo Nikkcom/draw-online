@@ -33,7 +33,7 @@ async def handler(websocket):
     logging.info(f'New connection. Total connections: {len(connected_clients)}')
 
     # Broadcasts the new connection count to all connections.
-    #await broadcast_connection_count()
+    await broadcast_connection_count()
 
     # Sends all the stored draw events so the new client is synced with existing drawing.
     await send_stored_draw_events(websocket)
@@ -103,7 +103,7 @@ async def broadcast_connection_count():
     """
     event = {
         'type': 'ACTIVE_CONNECTIONS',
-        'count': len(connected_clients),
+        'amount': len(connected_clients),
     }
     broadcast(connected_clients, json.dumps(event))
 

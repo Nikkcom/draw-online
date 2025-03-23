@@ -50,6 +50,9 @@ function handleWebSocketMessage(event) {
             case "PONG":
                 console.log("Received PONG from server.");
                 break;
+            case "ACTIVE_CONNECTIONS":
+                updateActiveConnections(message.amount);
+                break;
             default:
                 console.warn(`Unknown WebSocket message type: ${message.type}`);
         }
@@ -61,6 +64,13 @@ function handleWebSocketMessage(event) {
 /*
     Initializes the drawable Grid
  */
+
+function updateActiveConnections(amount) {
+    const counter = document.getElementById("connection-count");
+    if (counter) {
+        counter.textContent = amount;
+    }
+}
 
 function initializeGrid() {
     const gridContainer = document.querySelector('.grid-container');
