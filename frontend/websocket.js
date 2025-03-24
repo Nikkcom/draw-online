@@ -11,14 +11,11 @@ const RECONNECTION_DELAY = 3;
 
 function getWebSocketServer() {
     const host = window.location.host;
-    if (host === "draw.nikolausbrock.no") {
-        return "wss://draw.nikolausbrock.no/ws/"
-    } else if (host.startsWith("localhost")) {
+    if (host.startsWith("localhost")) {
         return "ws://192.168.247.133:8001";
     } else {
-        console.error("Unknown host. Could not connect to WebSocket Server.");
-        return null;
-    }
+        return "wss://draw.nikolausbrock.no/ws/";
+    } 
 }
 
 export function getWebSocketInstance() {
