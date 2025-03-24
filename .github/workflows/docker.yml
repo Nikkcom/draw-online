@@ -21,13 +21,21 @@ jobs:
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      - name: Build Docker image
+      - name: Build WebSocket Docker Image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/draw-online:latest \
-                       -t ${{ secrets.DOCKER_USERNAME }}/draw-online:${{ env.SHORT_SHA }} \
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/draw-online-websocket-server:latest \
+                       -t ${{ secrets.DOCKER_USERNAME }}/draw-online-websocket-server:${{ env.SHORT_SHA }} \
           ./backend
 
-      - name: Push image to Docker Hub
+      - name: Build Frontend Docker Image
         run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/draw-online:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/draw-online:${{ env.SHORT_SHA }}
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/draw-online-frontend:latest \
+                       -t ${{ secrets.DOCKER_USERNAME }}/draw-online-frontend:${{ env.SHORT_SHA }} \
+          ./frontend
+
+      - name: Push images to Docker Hub
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/draw-online-websocket-server:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/draw-online-websocket-server:${{ env.SHORT_SHA }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/draw-online-frontend:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/draw-online-frontend:${{ env.SHORT_SHA }}
