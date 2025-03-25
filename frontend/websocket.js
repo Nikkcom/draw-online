@@ -15,7 +15,7 @@ function getWebSocketServer() {
         return "ws://192.168.247.133:8001";
     } else {
         return "wss://draw.nikolausbrock.no/ws/";
-    } 
+    }
 }
 
 export function getWebSocketInstance() {

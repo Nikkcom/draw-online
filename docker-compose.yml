@@ -1,24 +1,36 @@
-version: "3.8"
-
 services:
   nginx:
     image: nginx:latest
     volumes:
-      - "./nginx/nginx.conf:/etc/nginx/nginx.conf:ro"
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certbot-etc:/etc/letsencrypt
+      - ./certbot-var:/var/lib/letsencrypt
     ports:
       - "80:80"
+      - "443:443"
     depends_on:
       - websocket
     networks:
-      - draw-online-network
+      - app-network
 
   websocket:
-    image: nikkcom/draw-online:latest
+    build: ./backend
     expose:
       - "8001"
     networks:
-      - draw-online-networks
+      - app-network
+
+  frontend:
+    build: ./frontend
+    expose:
+      - "80"
+    networks:
+      - app-network
+
+volumes:
+  certbot-etc:
+  certbot-var:
 
 networks:
-  draw-online-network:
+  app-network:
     driver: bridge
