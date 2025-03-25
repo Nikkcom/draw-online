@@ -50,6 +50,9 @@ function handleWebSocketMessage(event) {
             case "PONG":
                 console.log("Received PONG from server.");
                 break;
+            case "ACTIVE_CONNECTIONS":
+                updateActiveConnections(message.amount);
+                break;
             default:
                 console.warn(`Unknown WebSocket message type: ${message.type}`);
         }
@@ -61,6 +64,13 @@ function handleWebSocketMessage(event) {
 /*
     Initializes the drawable Grid
  */
+
+function updateActiveConnections(amount) {
+    const counter = document.getElementById("connection-count");
+    if (counter) {
+        counter.textContent = amount;
+    }
+}
 
 function initializeGrid() {
     const gridContainer = document.querySelector('.grid-container');
@@ -124,6 +134,17 @@ function handleCellClick(row, col) {
         console.warn("WebSocket connection not open. Click has been ignored.");
         return;
     }
+    const cell = document.querySelector(`.grid .row .cell[data-row='${row}'][data-col='${col}']`)
+    if (!cell) return null;
+
+    const currentColor = getComputedStyle(cell).backgroundColor;
+
+    const selectedRgb = hexToRgbString(selectedColor);
+
+    if (currentColor === selectedRgb) {
+        console.log(`Cell already has color ${selectedColor}, skipping...`);
+        return;
+    }
 
     console.log(`User clicked at (${row}, ${col})`);
 
@@ -136,6 +157,15 @@ function handleCellClick(row, col) {
         })
     );
 }
+
+function hexToRgbString(hex) {
+    const bigint = parseInt(hex.slice(1), 16);
+    const r = (bigint >> 16) & 255;
+    const g = (bigint >> 8) & 255;
+    const b = bigint & 255;
+    return `rgb(${r}, ${g}, ${b})`;
+}
+
 
 function updateGridCell(row, col, color) {
     const cell = document.querySelector(`[data-row='${row}'][data-col='${col}']`);
