@@ -1,0 +1,36 @@
+services:
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certbot-etc:/etc/letsencrypt
+      - ./certbot-var:/var/lib/letsencrypt
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - websocket
+    networks:
+      - app-network
+
+  websocket:
+    build: ./backend
+    expose:
+      - "8001"
+    networks:
+      - app-network
+
+  frontend:
+    build: ./frontend
+    expose:
+      - "80"
+    networks:
+      - app-network
+
+volumes:
+  certbot-etc:
+  certbot-var:
+
+networks:
+  app-network:
+    driver: bridge
