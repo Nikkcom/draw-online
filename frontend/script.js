@@ -154,11 +154,9 @@ function handleCellClick(row, col) {
     const cell = document.querySelector(`.grid .row .cell[data-row='${row}'][data-col='${col}']`)
     if (!cell) return null;
 
-    const currentColor = getComputedStyle(cell).backgroundColor;
+    const currentColor = cell.dataset.color
 
-    const selectedRgb = hexToRgbString(selectedColor);
-
-    if (currentColor === selectedRgb) {
+    if (currentColor === selectedColor) {
         console.log(`Cell already has color ${selectedColor}, skipping...`);
         return;
     }
@@ -173,14 +171,8 @@ function handleCellClick(row, col) {
             color: selectedColor,
         })
     );
-}
-
-function hexToRgbString(hex) {
-    const bigint = parseInt(hex.slice(1), 16);
-    const r = (bigint >> 16) & 255;
-    const g = (bigint >> 8) & 255;
-    const b = bigint & 255;
-    return `rgb(${r}, ${g}, ${b})`;
+    cell.style.backgroundColor = selectedColor;
+    cell.dataset.color = selectedColor;
 }
 
 
@@ -189,10 +181,10 @@ function updateGridCell(row, col, color) {
 
     if (cell) {
         cell.style.backgroundColor = color;
+        cell.dataset.color = color;
         console.log(`Cell updated. Set (${row}, ${col}) to ${color}`);
     } else {
         console.warn("WARN: Cell (${row}, ${col}) not found!")
     }
-
 }
 
