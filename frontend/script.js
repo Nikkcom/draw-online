@@ -20,7 +20,17 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('mouseup', () => {
         isDrawing = false;
     })
+    document.addEventListener("touchstart", (e) => {
+        isDrawing = true;
+    });
 
+    document.addEventListener("touchend", (e) => {
+        isDrawing = false;
+    });
+
+    document.addEventListener("touchcancel", (e) => {
+        isDrawing = false;
+    });
 
     console.log('DOMContentLoaded');
 });
@@ -132,6 +142,22 @@ function createGrid(gridElement) {
             cell.addEventListener("mouseover", () => {
                 if (isDrawing) {
                     handleCellClick(row, col);
+                }
+            });
+            cell.addEventListener("touchstart", (e) => {
+                e.preventDefault(); // prevent scrolling
+                handleCellClick(row, col);
+            });
+
+            cell.addEventListener("touchmove", (e) => {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const target = document.elementFromPoint(touch.clientX, touch.clientY);
+
+                if (target && target.classList.contains('cell')) {
+                    const row = target.dataset.row;
+                    const col = target.dataset.col;
+                    handleCellClick(parseInt(row), parseInt(col));
                 }
             });
             rowDiv.appendChild(cell);
