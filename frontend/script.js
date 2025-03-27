@@ -1,7 +1,8 @@
 import {getWebSocketInstance} from "./websocket.js";
 
 // Global Variables
-let selectedColor = "#206ba0";
+let selectedColor = "#2c2c2c";
+let isDrawing = false;
 
 // Initialization when the page loads.
 document.addEventListener('DOMContentLoaded', () => {
@@ -11,6 +12,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initializeGrid();
     initializeColorPicker();
+
+    // drag drawing
+    document.addEventListener('mousedown', () => {
+        isDrawing = true;
+    })
+    document.addEventListener('mouseup', () => {
+        isDrawing = false;
+    })
+
 
     console.log('DOMContentLoaded');
 });
@@ -114,9 +124,16 @@ function createGrid(gridElement) {
             cell.dataset.row = row;
             cell.dataset.col = col;
 
-            // Sets the Click Event Listener
-            cell.onclick = () => handleCellClick(row, col);
+            // Set individual mouse events for drawing
+            cell.addEventListener("mousedown", () => {
+                handleCellClick(row, col);
+            });
 
+            cell.addEventListener("mouseover", () => {
+                if (isDrawing) {
+                    handleCellClick(row, col);
+                }
+            });
             rowDiv.appendChild(cell);
         }
         gridElement.appendChild(rowDiv);
@@ -134,6 +151,15 @@ function handleCellClick(row, col) {
         console.warn("WebSocket connection not open. Click has been ignored.");
         return;
     }
+    const cell = document.querySelector(`.grid .row .cell[data-row='${row}'][data-col='${col}']`)
+    if (!cell) return null;
+
+    const currentColor = cell.dataset.color
+
+    if (currentColor === selectedColor) {
+        console.log(`Cell already has color ${selectedColor}, skipping...`);
+        return;
+    }
 
     console.log(`User clicked at (${row}, ${col})`);
 
@@ -145,17 +171,20 @@ function handleCellClick(row, col) {
             color: selectedColor,
         })
     );
+    cell.style.backgroundColor = selectedColor;
+    cell.dataset.color = selectedColor;
 }
+
 
 function updateGridCell(row, col, color) {
     const cell = document.querySelector(`[data-row='${row}'][data-col='${col}']`);
 
     if (cell) {
         cell.style.backgroundColor = color;
+        cell.dataset.color = color;
         console.log(`Cell updated. Set (${row}, ${col}) to ${color}`);
     } else {
         console.warn("WARN: Cell (${row}, ${col}) not found!")
     }
-
 }
 
