@@ -2,6 +2,7 @@ import {getWebSocketInstance} from "./websocket.js";
 
 // Global Variables
 let selectedColor = "#206ba0";
+let isDrawing = false;
 
 // Initialization when the page loads.
 document.addEventListener('DOMContentLoaded', () => {
@@ -11,6 +12,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initializeGrid();
     initializeColorPicker();
+
+    // drag drawing
+    document.addEventListener('mousedown', () => {
+        isDrawing = true;
+    })
+    document.addEventListener('mouseup', () => {
+        isDrawing = false;
+    })
+
 
     console.log('DOMContentLoaded');
 });
@@ -114,9 +124,16 @@ function createGrid(gridElement) {
             cell.dataset.row = row;
             cell.dataset.col = col;
 
-            // Sets the Click Event Listener
-            cell.onclick = () => handleCellClick(row, col);
+            // Set individual mouse events for drawing
+            cell.addEventListener("mousedown", () => {
+                handleCellClick(row, col);
+            });
 
+            cell.addEventListener("mouseover", () => {
+                if (isDrawing) {
+                    handleCellClick(row, col);
+                }
+            });
             rowDiv.appendChild(cell);
         }
         gridElement.appendChild(rowDiv);
