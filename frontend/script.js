@@ -1,7 +1,7 @@
 import {getWebSocketInstance} from "./websocket.js";
 
 // Global Variables
-let selectedColor = "#206ba0";
+let selectedColor = "#2c2c2c";
 let isDrawing = false;
 
 // Initialization when the page loads.
