@@ -10,12 +10,10 @@ const PING_INTERVAL = 15;
 const RECONNECTION_DELAY = 3;
 
 function getWebSocketServer() {
+    const isHttps = window.location.protocol === "https:";
+    const proto = isHttps ? "https" : "http";
     const host = window.location.host;
-    if (host.startsWith("localhost")) {
-        return "ws://localhost/ws/";
-    } else {
-        return "wss://draw.nikolausbrock.no/ws/";
-    }
+    return `${proto}://${host}/ws`;
 }
 
 export function getWebSocketInstance() {
