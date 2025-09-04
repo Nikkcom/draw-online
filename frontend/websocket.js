@@ -12,7 +12,7 @@ const RECONNECTION_DELAY = 3;
 function getWebSocketServer() {
     const host = window.location.host;
     if (host.startsWith("localhost")) {
-        return "ws://192.168.247.133:8001";
+        return "ws://localhost/ws/";
     } else {
         return "wss://draw.nikolausbrock.no/ws/";
     }
