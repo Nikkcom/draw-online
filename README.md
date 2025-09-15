@@ -4,6 +4,8 @@ A real-time drawing web application built with a **Python** and **JavaScript**. 
 
 ### Live Demo
 
+[snub.no](https://snub.no)
+
 - Everyone connected can draw together.
 - Real-time drawing using WebSockets.
 - Color selector to choose different colors.
