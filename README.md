@@ -1,3 +1,5 @@
+this project is abandoned
+
 # Real-Time Drawing App
 
 A real-time drawing web application built with a **Python** and **JavaScript**. Users can draw on a shared grid, and all connected clients will see updates in real time.
